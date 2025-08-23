@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         
         if (Array.isArray(data)) {
@@ -88,7 +91,20 @@ async function searchData() {
     const thickness = document.getElementById('thickness').value;
 
     try {
-        const response = await fetch(`${API_ENDPOINT}?blockNo=${blockNo}&partNo=${partNo}&thickness=${thickness}&sheet=${sheetName}`);
+        const url = new URL(API_ENDPOINT, window.location.origin);
+        url.searchParams.append('sheet', sheetName);
+        if (blockNo) url.searchParams.append('blockNo', blockNo);
+        if (partNo) url.searchParams.append('partNo', partNo);
+        if (thickness) url.searchParams.append('thickness', thickness);
+
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         console.log('API Response:', data);
         displayData(data);

@@ -2,13 +2,15 @@ const { google } = require('googleapis');
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const spreadsheetId = '1aJEVYDgVxhXVpOZrc8-JvHtwDXrX3v77jNZwPOad0vY';
-let sheetName = 'CutterData'; // Default sheet
 
-  // Get sheet name from query parameters
-  if (event.queryStringParameters.sheet) {
-    sheetName = event.queryStringParameters.sheet;
-  }
+// CORS headers for all responses
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+};
 
+// Configure Google Auth
 const auth = new google.auth.GoogleAuth({
   credentials: {
     type: 'service_account',
@@ -26,7 +28,27 @@ const auth = new google.auth.GoogleAuth({
 });
 
 exports.handler = async (event, context) => {
-  const { blockNo, partNo, thickness, partial } = event.queryStringParameters;
+  // Handle OPTIONS requests for CORS
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: corsHeaders,
+      body: ''
+    };
+  }
+
+  // Validate required environment variables
+  if (!process.env.GOOGLE_PRIVATE_KEY || !process.env.GOOGLE_CLIENT_EMAIL) {
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: 'Server configuration error' })
+    };
+  }
+
+  // Get and validate sheet name
+  const sheetName = event.queryStringParameters?.sheet || 'CutterData';
+  const { blockNo, partNo, thickness, partial } = event.queryStringParameters || {};
 
   try {
     const authClient = await auth.getClient();
@@ -75,9 +97,26 @@ exports.handler = async (event, context) => {
       body: JSON.stringify(filteredData),
     };
   } catch (error) {
+    console.error('Function error:', error);
+    
+    let statusCode = 500;
+    let errorMessage = 'Internal Server Error';
+
+    if (error.code === 404) {
+      statusCode = 404;
+      errorMessage = 'Sheet not found';
+    } else if (error.code === 403) {
+      statusCode = 403;
+      errorMessage = 'Access denied';
+    }
+
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' }),
+      statusCode,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      })
     };
   }
 };

@@ -49,7 +49,7 @@ async function searchData() {
     try {
         document.querySelector('.loader-overlay').style.display = 'flex';
         
-        const url = new URL(API_ENDPOINT);
+        const url = new URL(API_ENDPOINT, window.location.origin);
         url.searchParams.append('sheet', sheetName);
         
         // Only add parameters if they have values
@@ -58,7 +58,11 @@ async function searchData() {
         if (thickness) url.searchParams.append('thickness', thickness);
         url.searchParams.append('partial', 'true'); // Enable partial matching
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
         const data = await response.json();
 
         if (response.ok) {

@@ -26,7 +26,7 @@ const auth = new google.auth.GoogleAuth({
 });
 
 exports.handler = async (event, context) => {
-  const { blockNo, partNo, thickness } = event.queryStringParameters;
+  const { blockNo, partNo, thickness, partial } = event.queryStringParameters;
 
   try {
     const authClient = await auth.getClient();
@@ -38,17 +38,40 @@ exports.handler = async (event, context) => {
     });
 
     const rows = response.data.values;
-    let filteredData = rows.filter((row) => row[0] && row[0].toLowerCase() === blockNo.toLowerCase());
+    let filteredData = rows;
+
+    if (blockNo) {
+      filteredData = filteredData.filter(row => {
+        if (!row[0]) return false;
+        return partial === 'true'
+          ? row[0].toLowerCase().includes(blockNo.toLowerCase())
+          : row[0].toLowerCase() === blockNo.toLowerCase();
+      });
+    }
 
     if (partNo) {
-      filteredData = filteredData.filter((row) => row[1] && row[1].toLowerCase() === partNo.toLowerCase());
+      filteredData = filteredData.filter(row => {
+        if (!row[1]) return false;
+        return partial === 'true'
+          ? row[1].toLowerCase().includes(partNo.toLowerCase())
+          : row[1].toLowerCase() === partNo.toLowerCase();
+      });
     }
+
     if (thickness) {
-      filteredData = filteredData.filter((row) => row[2] && row[2].toLowerCase() === thickness.toLowerCase());
+      filteredData = filteredData.filter(row => {
+        if (!row[2]) return false;
+        return row[2].toLowerCase() === thickness.toLowerCase();
+      });
     }
 
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+      },
       body: JSON.stringify(filteredData),
     };
   } catch (error) {

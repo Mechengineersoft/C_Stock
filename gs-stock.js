@@ -1,6 +1,20 @@
 // API endpoint configuration
 const API_ENDPOINT = window.location.hostname === 'localhost' ? 'http://localhost:3000/api/data' : '/.netlify/functions/fetchData';
-const sheetName = 'CutterData'; // Default sheet name for main page
+
+// Initial loader handling
+// Create toast element
+const toastContainer = document.createElement('div');
+toastContainer.style.cssText = 'position: fixed; top: 150px; left: 20px; background: #4CAF50; color: white; padding: 16px; border-radius: 4px; z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out;';
+document.body.appendChild(toastContainer);
+
+// Show toast message function
+function showToast(message, duration = 2000) {
+    toastContainer.textContent = message;
+    toastContainer.style.opacity = '1';
+    setTimeout(() => {
+        toastContainer.style.opacity = '0';
+    }, duration);
+}
 
 // Debounce function to limit API calls
 function debounce(func, wait) {
@@ -26,25 +40,10 @@ function setupAutoSearch() {
     });
 }
 
-// Initial loader handling
-// Create toast element
-const toastContainer = document.createElement('div');
-toastContainer.style.cssText = 'position: fixed; top: 150px; left: 20px; background: #4CAF50; color: white; padding: 16px; border-radius: 4px; z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out;';
-document.body.appendChild(toastContainer);
-
-// Show toast message function
-function showToast(message, duration = 2000) {
-    toastContainer.textContent = message;
-    toastContainer.style.opacity = '1';
-    setTimeout(() => {
-        toastContainer.style.opacity = '0';
-    }, duration);
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const loaderElement = document.querySelector('.app-loader');
-        const response = await fetch(`${API_ENDPOINT}?blockNo=test`, {
+        const response = await fetch(`${API_ENDPOINT}?blockNo=test&sheet=GS Stock`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -58,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await response.json();
         
         if (Array.isArray(data)) {
-            showToast('Welcome to Rashi Granite Block Search');
+            showToast('Welcome to GS Stock Search');
             loaderElement.classList.add('hidden');
             setupAutoSearch(); // Initialize auto-search functionality
         } else {
@@ -88,7 +87,7 @@ async function searchData() {
     const thickness = document.getElementById('thickness').value;
 
     try {
-        const response = await fetch(`${API_ENDPOINT}?blockNo=${blockNo}&partNo=${partNo}&thickness=${thickness}&sheet=${sheetName}`);
+        const response = await fetch(`${API_ENDPOINT}?blockNo=${blockNo}&partNo=${partNo}&thickness=${thickness}&sheet=GS Stock`);
         const data = await response.json();
         console.log('API Response:', data);
         displayData(data);
@@ -128,7 +127,7 @@ function displayData(data) {
             }
         }
 
-        // Create table headers only for non-empty columns
+        // Create header row with only non-empty columns
         const headerRow = document.createElement('tr');
         nonEmptyColumns.forEach(colIndex => {
             const th = document.createElement('th');
@@ -137,7 +136,7 @@ function displayData(data) {
         });
         tableHead.appendChild(headerRow);
 
-        // Create table body with only non-empty columns
+        // Create data rows with only non-empty columns
         data.forEach(row => {
             const tr = document.createElement('tr');
             nonEmptyColumns.forEach(colIndex => {
@@ -148,9 +147,15 @@ function displayData(data) {
             tableBody.appendChild(tr);
         });
     } else {
-        colorDisplay.innerHTML = 'No data found';
-        colorDisplay.style.color = 'black';
-        colorDisplay.style.backgroundColor = 'transparent';
+        colorDisplay.innerHTML = '';
+        colorDisplay.style.color = '';
+        colorDisplay.style.backgroundColor = '';
+        const noDataRow = document.createElement('tr');
+        const noDataCell = document.createElement('td');
+        noDataCell.textContent = 'No data found';
+        noDataCell.style.textAlign = 'center';
+        noDataRow.appendChild(noDataCell);
+        tableBody.appendChild(noDataRow);
     }
 }
 
@@ -159,83 +164,32 @@ function clearData() {
     document.getElementById('blockNo').value = '';
     document.getElementById('partNo').value = '';
     document.getElementById('thickness').value = '';
-    document.getElementById('colorDisplay').innerHTML = '';
+    document.querySelector('#dataTable thead').innerHTML = '';
     document.querySelector('#dataTable tbody').innerHTML = '';
+    document.getElementById('colorDisplay').innerHTML = '';
+    document.getElementById('colorDisplay').style.color = '';
+    document.getElementById('colorDisplay').style.backgroundColor = '';
 }
 
-
-
-// Voice Input functionality
+// Voice input functionality
 function startVoiceInput(inputId) {
-    if (!('webkitSpeechRecognition' in window)) {
-        alert('Voice input is not supported in your browser. Please use Chrome.');
-        return;
-    }
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-    const recognition = new webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
-    const micButton = document.querySelector(`#${inputId}`).nextElementSibling;
-    micButton.style.color = '#ff4444';
-
-    recognition.onstart = () => {
-        micButton.style.color = '#ff4444';
-    };
-
-    recognition.onend = () => {
-        micButton.style.color = 'currentColor';
-    };
-
-    recognition.onresult = (event) => {
-        let transcript = event.results[0][0].transcript;
-        
-        // Process the transcript to remove spaces between single characters
-        // This handles cases like "a b c" becoming "abc"
-        if (/^[a-z0-9](\s+[a-z0-9])+$/i.test(transcript.trim())) {
-            transcript = transcript.replace(/\s+/g, '');
-        }
-        
-        // Handle single letter or digit (they often come with spaces)
-        if (transcript.trim().length === 1) {
-            transcript = transcript.trim();
-        }
-        
-        document.getElementById(inputId).value = transcript;
-        // Trigger search after voice input is complete
-        searchData();
-    };
-
-    recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        micButton.style.color = 'currentColor';
-    };
-
-    recognition.start();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Add input event listeners to search fields
-    const searchFields = ['blockNo', 'partNo', 'thickness'];
-    searchFields.forEach(fieldId => {
-        document.getElementById(fieldId).addEventListener('input', debounce(() => {
-            if (document.getElementById('blockNo').value) {
-                searchData();
-            }
-        }, 300));
-    });
-});
-
-// Debounce function to prevent too many API calls
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
+        recognition.onresult = (event) => {
+            const result = event.results[0][0].transcript;
+            document.getElementById(inputId).value = result;
         };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            alert('Speech recognition failed. Please try again or type manually.');
+        };
+
+        recognition.start();
+    } else {
+        alert('Speech recognition is not supported in your browser. Please use Chrome.');
+    }
 }

@@ -2,7 +2,12 @@ const { google } = require('googleapis');
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const spreadsheetId = '1aJEVYDgVxhXVpOZrc8-JvHtwDXrX3v77jNZwPOad0vY';
-const sheetName = 'CutterData';
+let sheetName = 'CutterData'; // Default sheet
+
+  // Get sheet name from query parameters
+  if (event.queryStringParameters.sheet) {
+    sheetName = event.queryStringParameters.sheet;
+  }
 
 const auth = new google.auth.GoogleAuth({
   credentials: {

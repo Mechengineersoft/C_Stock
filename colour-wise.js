@@ -79,39 +79,55 @@ async function searchData() {
 }
 
 // Function to display data in the table
+// Display Data function
 function displayData(data) {
-    const table = document.getElementById('dataTable');
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
+    const tableHead = document.querySelector('#dataTable thead');
+    const tableBody = document.querySelector('#dataTable tbody');
+    const colorDisplay = document.getElementById('colorDisplay');
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
 
-    // Clear existing data
-    thead.innerHTML = '';
-    tbody.innerHTML = '';
+    if (data.length > 0) {
+        
 
-    if (data.length === 0) {
-        showToast('No matching records found');
-        return;
-    }
+        // Define headers and check which columns have data
+        const headers = ['Fac Colour', 'Sub Colour', 'Thk cm', 'Nos', 'Block No', 'Part', 'L cm', 'H cm', 'Epoxy', 'Polish', 
+                        'Leather', 'Lapotra', 'Honed', 'Shot', 'Pol R', 'Bal', 'B SP', 'Edge', 
+                        'Meas', 'Status', 'Date'];
+        const nonEmptyColumns = [];
 
-    // Create table headers
-    const headerRow = document.createElement('tr');
-    Object.keys(data[0]).forEach(key => {
-        const th = document.createElement('th');
-        th.textContent = key;
-        headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
+        // Check each column for non-empty values
+        for(let i = 0; i <= 20; i++) {
+            const hasData = data.some(row => row[i] && row[i].toString().trim() !== '');
+            if (hasData) {
+                nonEmptyColumns.push(i);
+            }
+        }
 
-    // Add data rows
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        Object.values(row).forEach(value => {
-            const td = document.createElement('td');
-            td.textContent = value;
-            tr.appendChild(td);
+        // Create table headers only for non-empty columns
+        const headerRow = document.createElement('tr');
+        nonEmptyColumns.forEach(colIndex => {
+            const th = document.createElement('th');
+            th.textContent = headers[colIndex];
+            headerRow.appendChild(th);
         });
-        tbody.appendChild(tr);
-    });
+        tableHead.appendChild(headerRow);
+
+        // Create table body with only non-empty columns
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            nonEmptyColumns.forEach(colIndex => {
+                const td = document.createElement('td');
+                td.textContent = row[colIndex] || '';
+                tr.appendChild(td);
+            });
+            tableBody.appendChild(tr);
+        });
+    } else {
+        colorDisplay.innerHTML = 'No data found';
+        colorDisplay.style.color = 'black';
+        colorDisplay.style.backgroundColor = 'transparent';
+    }
 }
 
 // Function to clear search inputs and results

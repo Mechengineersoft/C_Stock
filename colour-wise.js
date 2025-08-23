@@ -1,5 +1,5 @@
 const API_ENDPOINT = window.location.hostname === 'localhost' ? 'http://localhost:3000/api/data' : '/.netlify/functions/fetchData';
-const sheetName = 'GS Stock';
+const sheetName = 'Copy of GS Stock';
 
 // Toast message handling
 function showToast(message, isError = false) {

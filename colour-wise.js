@@ -91,9 +91,9 @@ function displayData(data) {
         
 
         // Define headers and check which columns have data
-        const headers = ['Fac Colour', 'Sub Colour', 'Thk cm', 'Nos', 'Block No', 'Part', 'L cm', 'H cm', 'Epoxy', 'Polish', 
+        const headers = ['Fac Colour', 'Sub Colour', 'Thk cm', 'Nos', 'Block No', 'Part', 'L cm', 'H cm', 'Date', 'Epoxy', 'Polish', 
                         'Leather', 'Lapotra', 'Honed', 'Shot', 'Pol R', 'Bal', 'B SP', 'Edge', 
-                        'Meas', 'Status', 'Date'];
+                        'Meas', 'Status'];
         const nonEmptyColumns = [];
 
         // Check each column for non-empty values

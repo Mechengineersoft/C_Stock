@@ -60,47 +60,30 @@ exports.handler = async (event, context) => {
     });
 
     const rows = response.data.values;
-    if (!rows || rows.length === 0) {
-      return {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify([])
-      };
-    }
-
-    // Get headers from the first row
-    const headers = rows[0];
-    // Convert remaining rows to objects with headers as keys
-    let filteredData = rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((header, index) => {
-        obj[header || `Column ${index + 1}`] = row[index] || '';
-      });
-      return obj;
-    });
+    let filteredData = rows;
 
     if (blockNo) {
       filteredData = filteredData.filter(row => {
-        const blockNoValue = row['Block No'] || row['Block No.'] || '';
+        if (!row[0]) return false;
         return partial === 'true'
-          ? blockNoValue.toLowerCase().includes(blockNo.toLowerCase())
-          : blockNoValue.toLowerCase() === blockNo.toLowerCase();
+          ? row[0].toLowerCase().includes(blockNo.toLowerCase())
+          : row[0].toLowerCase() === blockNo.toLowerCase();
       });
     }
 
     if (partNo) {
       filteredData = filteredData.filter(row => {
-        const partNoValue = row['Part No'] || row['Part No.'] || '';
+        if (!row[1]) return false;
         return partial === 'true'
-          ? partNoValue.toLowerCase().includes(partNo.toLowerCase())
-          : partNoValue.toLowerCase() === partNo.toLowerCase();
+          ? row[1].toLowerCase().includes(partNo.toLowerCase())
+          : row[1].toLowerCase() === partNo.toLowerCase();
       });
     }
 
     if (thickness) {
       filteredData = filteredData.filter(row => {
-        const thicknessValue = row['Thickness'] || '';
-        return thicknessValue.toLowerCase() === thickness.toLowerCase();
+        if (!row[2]) return false;
+        return row[2].toLowerCase() === thickness.toLowerCase();
       });
     }
 

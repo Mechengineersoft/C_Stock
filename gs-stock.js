@@ -43,7 +43,7 @@ function setupAutoSearch() {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const loaderElement = document.querySelector('.app-loader');
-        const response = await fetch(`${API_ENDPOINT}?blockNo=test&sheet=GS Stock`, {
+        const response = await fetch(`${API_ENDPOINT}?blockNo=test&sheet=C Stock`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await response.json();
         
         if (Array.isArray(data)) {
-            showToast('Welcome to GS Stock Search');
+            showToast('Welcome to Cutter Stock Search');
             loaderElement.classList.add('hidden');
             setupAutoSearch(); // Initialize auto-search functionality
         } else {
@@ -91,7 +91,7 @@ async function searchData() {
 
     try {
         const url = new URL(API_ENDPOINT, window.location.origin);
-        url.searchParams.append('sheet', 'GS Stock');
+        url.searchParams.append('sheet', 'C Stock');
         if (blockNo) url.searchParams.append('blockNo', blockNo);
         if (partNo) url.searchParams.append('partNo', partNo);
         if (thickness) url.searchParams.append('thickness', thickness);

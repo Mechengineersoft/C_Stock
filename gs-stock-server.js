@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
 const sheets = google.sheets('v4');
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const spreadsheetId = '1aJEVYDgVxhXVpOZrc8-JvHtwDXrX3v77jNZwPOad0vY';
-const sheetName = 'GS Stock'; // Fixed sheet name for this server
+const sheetName = 'C Stock'; // Fixed sheet name for this server
 
 const auth = new google.auth.GoogleAuth({
     keyFile: 'credentials.json',

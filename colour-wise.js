@@ -88,10 +88,24 @@ function displayData(data) {
     tableBody.innerHTML = '';
 
     if (data.length > 0) {
-        
+        // Assuming `data` is a 2D array from Google Sheets or similar
+// Example: data[row][col]
+
+// Sum of column D (index 3)
+const totalNos = data.reduce((sum, row) => sum + (parseFloat(row[3]) || 0), 0);
+
+// Unique values in column C (index 2)
+const totalThkSet = new Set(data.map(row => row[2]));
+const totalThk = Array.from(totalThkSet).join(", ");
+
+// Display
+colorDisplay.innerHTML = `Total Nos: ${totalNos} <br> Total Thk: ${totalThk}`;
+colorDisplay.style.color = "#580F41";
+colorDisplay.style.backgroundColor = "#E6E0F8";
+
 
         // Define headers and check which columns have data
-        const headers = ['Fac Colour', 'Sub Colour', 'Thk cm', 'Nos', 'Block No', 'Part', 'L cm', 'H cm', 'Date', 'Epoxy', 'Polish', 
+        const headers = ['Fac Colour','Sub Colour', 'Thk cm', 'Nos','Block No', 'Part', 'L cm', 'H cm', 'Date', 'Grind', 'Net', 'Epoxy', 'Polish', 
                         'Leather', 'Lapotra', 'Honed', 'Shot', 'Pol R', 'Bal', 'B SP', 'Edge', 
                         'Meas', 'Status'];
         const nonEmptyColumns = [];

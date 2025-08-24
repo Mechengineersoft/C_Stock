@@ -1,0 +1,39 @@
+/* GS Stock specific styles */
+.container {
+    border-top: 4px solid #006400;
+}
+
+button {
+    background-color: #006400;
+    color: white;
+}
+
+button:hover {
+    background-color: #004d00;
+}
+
+.mic-button:hover {
+    color: #006400;
+}
+
+th {
+    background-color: #006400;
+}
+
+tr:nth-child(odd) {
+    background-color: #e8f5e9;
+}
+
+@keyframes rainbow-border {
+    0% { border-color: #006400; }
+    33.33% { border-color: #008000; }
+    66.66% { border-color: #228B22; }
+    100% { border-color: #006400; }
+}
+
+input:focus {
+    outline: none;
+    border: 2px solid #006400;
+    animation: rainbow-border 3s linear infinite;
+    box-shadow: 0 0 5px rgba(0, 100, 0, 0.2);
+}

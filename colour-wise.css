@@ -1,0 +1,39 @@
+/* Colour Wise specific styles */
+.container {
+    border-top: 4px solid #4B0082;
+}
+
+button {
+    background-color: #4B0082;
+    color: white;
+}
+
+button:hover {
+    background-color: #3a0066;
+}
+
+.mic-button:hover {
+    color: #4B0082;
+}
+
+th {
+    background-color: #4B0082;
+}
+
+tr:nth-child(odd) {
+    background-color: #f3e5f5;
+}
+
+@keyframes rainbow-border {
+    0% { border-color: #4B0082; }
+    33.33% { border-color: #663399; }
+    66.66% { border-color: #8B008B; }
+    100% { border-color: #4B0082; }
+}
+
+input:focus {
+    outline: none;
+    border: 2px solid #4B0082;
+    animation: rainbow-border 3s linear infinite;
+    box-shadow: 0 0 5px rgba(75, 0, 130, 0.2);
+}
